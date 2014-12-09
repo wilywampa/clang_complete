@@ -541,28 +541,39 @@ def gotoDeclaration(preview=True):
     defs = [cursor.get_definition(), cursor.referenced]
 
     if defs[0] is None:
-      target = None
-      f2 = cursor.location.file.name
-      if f2.endswith(".h"):
-        curdir = os.path.dirname(vim.current.buffer.name)
-        files = [os.path.join(curdir, fname) for fname in os.listdir(curdir)]
-        files = filter(os.path.isfile, files)
-        for f2 in files:
-          if f2 != vim.current.buffer.name and os.access(f2, os.R_OK):
-            tu2 = getCurrentTranslationUnit(params['args'],
-                                            ("\n".join(file(f2, 'r').readlines() + ["\n"]), f2),
-                                            f2, timer,
-                                            update = True)
-            if tu2 is None:
-              continue
-            f2 = File.from_name(tu2, vim.current.buffer.name)
-            loc2 = SourceLocation.from_position(tu2, f2, line, col + 1)
-            cursor2 = Cursor.from_location(tu2, loc2)
-            if cursor2 is not None:
-              d = cursor2.get_definition()
-              if d is not None and cursor2 != d:
-                defs.insert(0, d)
-                break
+        if (cursor.kind == CursorKind.DECL_REF_EXPR or
+            cursor.kind == CursorKind.MEMBER_REF_EXPR or
+            cursor.kind == CursorKind.CALL_EXPR):
+          cursor = cursor.referenced
+
+        if (cursor.kind == CursorKind.CXX_METHOD or
+            cursor.kind == CursorKind.FUNCTION_DECL or
+            cursor.kind == CursorKind.CONSTRUCTOR or
+            cursor.kind == CursorKind.DESTRUCTOR):
+          f2 = cursor.location.file.name
+          if f2.endswith(".h") or f2.endswith(".hpp"):
+            curdir = os.path.dirname(vim.current.buffer.name)
+            files = [os.path.join(curdir, fname) for fname in os.listdir(curdir)]
+            def valid(f):
+              return (os.path.isfile(f) and '.' in f
+                      and f[f.rindex('.')+1:] in ['cpp', 'c', 'cc', 'm', 'mm'])
+            files = filter(valid, files)
+            for f2 in files:
+              if f2 != vim.current.buffer.name and os.access(f2, os.R_OK):
+                tu2 = getCurrentTranslationUnit(params['args'],
+                                                ("\n".join(file(f2, 'r').readlines() + ["\n"]), f2),
+                                                f2, timer,
+                                                update = True)
+                if tu2 is None:
+                  continue
+                f2 = File.from_name(tu2, vim.current.buffer.name)
+                loc2 = SourceLocation.from_position(tu2, f2, line, col + 1)
+                cursor2 = Cursor.from_location(tu2, loc2)
+                if cursor2 is not None:
+                  d = cursor2.get_definition()
+                  if d is not None and cursor2 != d:
+                    defs.insert(0, d)
+                    break
 
     for d in defs:
       if d is not None and loc != d.location:
