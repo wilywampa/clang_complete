@@ -441,7 +441,8 @@ function! ClangComplete(findstart, base)
     python vim.command('let l:res = ' + completions)
     python timer.registerEvent("Load into vimscript")
 
-    if g:clang_make_default_keymappings == 1 && g:clang_snippets == 1
+    if g:clang_make_default_keymappings == 1 &&
+        \ exists('g:clang_snippets') && g:clang_snippets == 1
       let s:old_cr = maparg('<CR>', 'i')
       inoremap <expr> <buffer> <C-Y> <SID>HandlePossibleSelectionCtrlY()
       inoremap <expr> <buffer> <CR> <SID>HandlePossibleSelectionEnter()
