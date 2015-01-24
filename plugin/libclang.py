@@ -528,6 +528,7 @@ def gotoDeclaration(preview=True):
   params = getCompileParams(vim.current.buffer.name)
   line, col = vim.current.window.cursor
   timer = CodeCompleteTimer(debug, vim.current.buffer.name, line, col, params)
+  found = False
 
   with libclangLock:
     tu = getCurrentTranslationUnit(params['args'], getCurrentFile(),
@@ -581,8 +582,12 @@ def gotoDeclaration(preview=True):
       if d is not None and loc != d.location:
         loc = d.location
         if loc.file is not None:
+          found = True
           jumpToLocation(loc.file.name, loc.line, loc.column, preview)
         break
+
+  if not found:
+    print 'Declaration/definition not found'
 
   timer.finish()
 
