@@ -4,6 +4,9 @@ import time
 import threading
 import os
 import shlex
+import tempfile
+import string
+import random
 
 # Check if libclang is able to find the builtin include files.
 #
@@ -503,22 +506,21 @@ def getAbbr(strings):
   return ""
 
 def jumpToLocation(filename, line, column, preview):
-  filenameEscaped = filename.replace(" ", "\\ ")
-  if preview:
-    command = "pedit +%d %s" % (line, filenameEscaped)
-  elif filename != vim.current.buffer.name:
-    command = "edit %s" % filenameEscaped
-  else:
-    command = "normal m'"
-  try:
-    vim.command(command)
-  except:
-    # For some unknown reason, whenever an exception occurs in
-    # vim.command, vim goes crazy and output tons of useless python
-    # errors, catch those.
-    return
-  if not preview:
-    vim.current.window.cursor = (line, column - 1)
+  with tempfile.NamedTemporaryFile('w') as f:
+    while True:
+      tagname = ''.join([random.choice(string.lowercase)
+                         for _ in range(20)])
+      if vim.eval('empty("%s")' % tagname):
+        break
+    f.write("{0}\t{1}\t{2}".format(
+      tagname, filename, 'normal! {0}G{1}|'.format(line, column)))
+    f.seek(0)
+    vim.command('set tags+=%s' % f.name)
+    if preview:
+      vim.command('ptjump %s' % tagname)
+    else:
+      vim.command('tjump %s' % tagname)
+    vim.command('set tags-=%s' % f.name)
 
 def gotoDeclaration(preview=True):
   global debug
