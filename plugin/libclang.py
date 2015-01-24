@@ -510,7 +510,7 @@ def jumpToLocation(filename, line, column, preview):
     while True:
       tagname = ''.join([random.choice(string.lowercase)
                          for _ in range(20)])
-      if vim.eval('empty("%s")' % tagname):
+      if vim.eval('empty(taglist("%s"))' % tagname):
         break
     f.write("{0}\t{1}\t{2}".format(
       tagname, filename, 'normal! {0}G{1}|'.format(line, column)))
