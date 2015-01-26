@@ -193,7 +193,6 @@ function! s:ClangCompleteInit()
     augroup end
   endif
 
-  setlocal completefunc=ClangComplete
   setlocal omnifunc=ClangComplete
 endfunction
 
