@@ -505,11 +505,11 @@ def getAbbr(strings):
       return chunks.spelling
   return ""
 
-def jumpToLocation(filename, line, column, preview):
+def jumpToLocation(filename, line, column, preview, name):
   with tempfile.NamedTemporaryFile('w') as f:
     while True:
-      tagname = ''.join([random.choice(string.lowercase)
-                         for _ in range(20)])
+      tagname = name + ' ' + ''.join([random.choice(string.lowercase)
+                                      for _ in range(4)])
       if vim.eval('empty(taglist("%s"))' % tagname):
         break
     f.write("{0}\t{1}\t{2}".format(
@@ -583,7 +583,7 @@ def gotoDeclaration(preview=True):
         loc = d.location
         if loc.file is not None:
           found = True
-          jumpToLocation(loc.file.name, loc.line, loc.column, preview)
+          jumpToLocation(loc.file.name, loc.line, loc.column, preview, d.displayname)
         break
 
   if not found:
