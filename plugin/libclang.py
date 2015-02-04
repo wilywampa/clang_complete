@@ -507,11 +507,10 @@ def getAbbr(strings):
 
 def jumpToLocation(filename, line, column, preview, name):
   with tempfile.NamedTemporaryFile('w') as f:
-    while True:
+    tagname = name
+    while vim.eval('taglist("^%s$")' % tagname) != []:
       tagname = name + ' ' + ''.join([random.choice(string.lowercase)
                                       for _ in range(4)])
-      if vim.eval('empty(taglist("%s"))' % tagname):
-        break
     f.write("{0}\t{1}\t{2}".format(
       tagname, filename, 'normal! {0}G{1}|'.format(line, column)))
     f.seek(0)
