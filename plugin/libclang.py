@@ -512,7 +512,7 @@ def jumpToLocation(filename, line, column, preview, name):
       tagname = name + ' ' + ''.join([random.choice(string.lowercase)
                                       for _ in range(4)])
     f.write("{0}\t{1}\t{2}".format(
-      tagname, filename, 'normal! {0}G{1}|'.format(line, column)))
+      tagname, filename, 'call cursor({0}, {1})'.format(line, column)))
     f.seek(0)
     vim.command('set tags+=%s' % f.name)
     if preview:
