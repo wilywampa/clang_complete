@@ -536,7 +536,7 @@ def getCurrentCompletions(base):
   timer.registerEvent("Count # Results (%s)" % str(len(results)))
 
   if base != "":
-    results = [x for x in results if getAbbr(x.string).startswith(base.encode('utf-8'))]
+    results = [x for x in results if getAbbr(x.string).startswith(base)]
 
   timer.registerEvent("Filter")
 
@@ -559,7 +559,7 @@ def getCurrentCompletions(base):
 def getAbbr(strings):
   for chunks in strings:
     if chunks.isKindTypedText():
-      return chunks.spelling
+      return decode(chunks.spelling)
   return ""
 
 def jumpToLocation(filename, line, column, preview):
