@@ -583,7 +583,8 @@ def gotoDeclaration(preview=True):
         loc = d.location
         if loc.file is not None:
           found = True
-          jumpToLocation(loc.file.name, loc.line, loc.column, preview, d.spelling)
+          jumpToLocation(loc.file.name, loc.line, loc.column, preview,
+                         d.spelling or d.displayname)
         break
 
   if not found:
