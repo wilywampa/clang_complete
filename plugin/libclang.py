@@ -563,7 +563,7 @@ def getAbbr(strings):
   return ""
 
 def jumpToLocation(filename, line, column, preview):
-  filenameEscaped = filename.replace(" ", "\\ ")
+  filenameEscaped = decode(filename).replace(" ", "\\ ")
   if preview:
     command = "pedit +%d %s" % (line, filenameEscaped)
   elif filename != vim.current.buffer.name:
