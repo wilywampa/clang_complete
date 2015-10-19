@@ -30,10 +30,13 @@ translationUnits = None
 
 
 def decode(value):
-  if sys.version_info[0] == 2:
+  try:
+    if sys.version_info[0] == 2:
+      return value
+    else:
+      return value.decode('utf-8')
+  except AttributeError:
     return value
-  else:
-    return value.decode('utf-8')
 
 
 # Check if libclang is able to find the builtin include files.
@@ -408,9 +411,9 @@ def formatResult(result):
       if chunk.isKindInformative() or chunk.isKindResultType() or chunk.isKindTypedText():
         continue
 
-      word += chunk.spelling
+      word += decode(chunk.spelling)
       if chunk.isKindOptional():
-        result += roll_out_optional(chunk.string)
+        result += decode(roll_out_optional(chunk.string))
 
     return [word] + result
 
