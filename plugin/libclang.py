@@ -251,6 +251,10 @@ def highlightRange(range, hlGroup):
   vim.command(command)
 
 def highlightDiagnostic(diagnostic):
+  if diagnostic.location.file is None or \
+     decode(diagnostic.location.file.name) != vim.eval('expand("%:p")'):
+    return
+
   if diagnostic.severity == diagnostic.Warning:
     hlGroup = 'SpellLocal'
   elif diagnostic.severity == diagnostic.Error:
@@ -340,7 +344,7 @@ def getCompileParams(fileName):
   args += splitOptions(vim.eval("b:clang_user_options"))
   args += splitOptions(vim.eval("b:clang_parameters"))
 
-  if builtinHeaderPath:
+  if builtinHeaderPath and '-nobuiltininc' not in args:
     args.append("-I" + builtinHeaderPath)
 
   return { 'args' : args,
