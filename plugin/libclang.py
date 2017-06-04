@@ -597,19 +597,22 @@ def gotoDeclaration(preview=True):
             cursor.kind == CursorKind.FUNCTION_DECL or
             cursor.kind == CursorKind.CONSTRUCTOR or
             cursor.kind == CursorKind.DESTRUCTOR):
-          f2 = cursor.location.file.name
+          f2 = decode(cursor.location.file.name)
           if f2.endswith(".h") or f2.endswith(".hpp"):
             curdir = os.path.dirname(vim.current.buffer.name)
             files = [os.path.join(curdir, fname) for fname in os.listdir(curdir)]
+            def getlines(f):
+              with open(f, 'r') as fd:
+                return fd.readlines()
             def valid(f):
               return (f != vim.current.buffer.name and '.' in f and
                       f.rpartition('.')[-1] in ['cpp', 'c', 'cc', 'm', 'mm'] and
-                      os.path.isfile(f) and defs[1].spelling in
-                      ' '.join(file(f, 'r').readlines()))
+                      os.path.isfile(f) and decode(defs[1].spelling) in
+                      ' '.join(getlines(f)))
             files = filter(valid, files)
             for f2 in files:
               tu2 = getCurrentTranslationUnit(params['args'],
-                                              ("\n".join(file(f2, 'r').readlines() + ["\n"]), f2),
+                                              ("\n".join(getlines(f2)), f2),
                                               f2, timer,
                                               update = True)
               if tu2 is None:
